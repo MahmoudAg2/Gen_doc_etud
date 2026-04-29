@@ -1,0 +1,147 @@
+Plan  de  Cr é ation  :  Plateforme  de  
+G é n é ration  de  Documents  É ducatifs
+Ce docum ent présente un plan détaillé pour la conception et le développem ent d'une 
+plateform e web perm ettant de générer divers docum ents éducatifs (cartes d'étudiant, 
+bulletins de notes, lettres de recom m andation, em plois du tem ps). La stack technique 
+choisie est React pour le frontend, J ava (avec Spring Boot recom m andé) pour le backend, 
+et M ySQL (via XAM PP) pour la base de données.
+I. Présentation du Projet
+I.1. Objectif
+Créer une application web centralisée perm ettant aux adm inistrateurs, enseignants et 
+étudiants de générer, consulter et télécharger des docum ents oﬃciels au form at PDF.
+I.2. Acteurs (Rôles)
+• Adm inistrateur : G ère les utilisateurs, les ﬁlières, les cours, et peut générer tous les 
+docum ents.
+• Enseignant : Saisit les notes, génère des lettres de recom m andation pour ses étudiants.
+• Étudiant : Consulte ses notes, télécharge son bulletin, sa carte d'étudiant et son em ploi 
+du tem ps.
+I.3. Docum ents à générer
+• Carte d'étudiant : Inform ations personnelles, photo, m atricule, code-barres/QR code.
+• Bulletin de notes : Liste des m atières, notes, m oyennes, appréciations.
+• Lettre de recom m andation de stage : M odèle pré-rem pli avec les inform ations de 
+l'étudiant et de l'enseignant.
+• Em ploi du tem ps : G rille hebdom adaire des cours par classe ou ﬁlière.
+II. Architecture Technique
+II.1. Frontend (Interface U tilisateur)
+• Technologie : React.js
+• Routage : React Router
+• G estion d'état : Redux Toolkit ou Context API
+• Stylisation : Tailwind CSS ou M aterial-U I (M U I) pour des com posants prêts à l'em ploi.
+• Com m unication HTTP : Axios ou Fetch API pour com m uniquer avec le backend.
+II.2. Backend (Logique M étier & API)
+• Technologie : J ava (Fram ework Spring Boot fortem ent recom m andé pour sa rapidité 
+de m ise en place).
+• Architecture : RESTful API (Contrôleurs, Services, Repositories).
+• Sécurité : Spring Security avec J W T (J SON W eb Tokens) pour l'authentiﬁcation et 
+l'autorisation.
+• G énération de PDF : Bibliothèques J ava com m e iText, Apache PDFBox ou 
+J asperReports.
+II.3. Base de Données
+• Serveur : XAM PP (Apache + M ariaDB/M ySQL).
+• SG BD : M ySQL.
+• ORM  (Object-Relational M apping) : Hibernate (intégré via Spring Data J PA) pour lier 
+les objets J ava aux tables M ySQL.
+III. M odélisation de la Base de Données (M ySQL)
+Voici les tables principales à créer dans votre base de données :
+III.1. U tilisateurs et Rôles
+• U tilisateur (id, nom , prenom , em ail, m ot_de_passe, role_id)
+• Role  (id, nom _role) - ex: ADM IN, PROF, ETU DIANT
+III.2. Structure Académ ique
+• Filiere  (id, nom , description)
+• Classe  (id, nom , niveau, ﬁliere_id)
+• M atiere  (id, nom , coeﬃcient)
+III.3. Données Étudiants et Notes
+• Etudiant (id, m atricule, date_naissance, photo_url, utilisateur_id, classe_id)
+• Note  (id, valeur, appreciation, etudiant_id, m atiere_id, sem estre)
+III.4. Em ploi du Tem ps
+• Seance  (id, jour, heure_debut, heure_ﬁn, m atiere_id, classe_id, professeur_id, salle)
+IV. Développem ent Backend (J ava / Spring Boot)
+IV.1. Conﬁguration Initiale
+1.G énérer le projet via Spring Initializr (Dépendances : Spring W eb, Spring Data J PA, 
+M ySQL Driver, Spring Security, Lom bok).
+2.Conﬁgurer la connexion à la base de données XAM PP dans application.properties :
+Plain Text
+spring.datasource.url=jdbc:mysql://localhost:3306/nom_de_votre_base
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+IV.2. Création des APIs REST
+• Auth API : /api/auth/login , /api/auth/register
+• U sers API : CRU D pour les étudiants et professeurs.
+• Notes API : Saisie et récupération des notes.
+• G énération API (Endpoints clés) :
+• G ET /api/docum ents/carte/{etudiantId} -> Retourne le PDF de la carte.
+• G ET /api/docum ents/bulletin/{etudiantId}/{sem estre} -> Retourne le PDF du bulletin.
+• G ET /api/docum ents/lettre/{etudiantId}/{profId} -> Retourne le PDF de la lettre.
+• G ET /api/docum ents/em ploi-du-tem ps/{classeId} -> Retourne le PDF de l'em ploi du tem ps.
+IV.3. Logique de G énération de PDF (Exem ple avec iText ou 
+J asperReports)
+• Créer un service PdfG enerationService .
+• Pour chaque type de docum ent, concevoir un tem plate (soit en code J ava pur avec 
+iText, soit via un ﬁchier .jrxm l avec J asperReports).
+• Le service récupère les données de la base, les injecte dans le tem plate, et génère le ﬂux 
+binaire (byte array) du PDF à renvoyer au frontend.
+V. Développem ent Frontend (React)
+V.1. Structure de l'Application
+• Pages Publiques : Page de connexion (/login ).
+• Pages Privées (Dashboard) :
+• /dashboard/adm in  : G estion globale.
+• /dashboard/etudiant : Vue des notes, boutons de téléchargem ent.
+• /dashboard/professeur : Saisie des notes, génération de lettres.
+V.2. Com posants Clés
+• LoginForm  : Form ulaire d'authentiﬁcation.
+• Sidebar / Navbar : Navigation selon le rôle.
+• DataTable  : Pour aﬃcher les listes d'étudiants, de notes, etc.
+• Docum entPreview  : U n com posant pour prévisualiser le PDF avant téléchargem ent (en 
+utilisant un ifram e ou une librairie com m e react-pdf).
+V.3. G estion du Téléchargem ent
+Lorsqu'un utilisateur clique sur "Télécharger", React fait un appel API. Le backend renvoie 
+un ﬁchier (Blob).
+J avaScript
+// Exemple de fonction de téléchargement
+const telechargerBulletin = async (id) => {
+    const response = await axios.get(`/api/documents/bulletin/${id}`, {
+        responseType: 'blob', // Important pour les fichiers
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `bulletin_${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+};
+VI. Planiﬁcation et Étapes de Réalisation
+Pour m ener à bien ce projet, il est conseillé de suivre une approche itérative (Agile) :
+Phase 1 : Préparation et Conception (Sem aine 1)
+• Installation des outils (XAM PP, IDE J ava com m e IntelliJ /Eclipse, Node.js, VS Code).
+• Création de la base de données M ySQL dans phpM yAdm in.
+• M aquettage des interfaces (Figm a ou sur papier).
+Phase 2 : Socle Backend et Sécurité (Semaine 2)
+• Initialisation du projet Spring Boot.
+• Création des entités J PA (M odèles).
+• M ise en place de Spring Security et J W T.
+• Tests des APIs d'authentiﬁcation avec Postm an.
+Phase 3 : Socle Frontend (Sem aine 3)
+• Initialisation du projet React (npx create-react-app  ou Vite).
+• M ise en place du routage et de la page de connexion.
+• Création des tableaux de bord de base (vides).
+Phase 4 : Fonctionnalités M étier (Sem aines 4-5)
+• Backend : APIs pour la gestion des étudiants, cours, notes et em plois du tem ps.
+• Frontend : Form ulaires de saisie et tableaux d'aﬃchage pour consom m er ces APIs.
+Phase 5 : M oteur de G énération de Docum ents (Sem aine 6)
+• Intégration de la librairie PDF côté J ava.
+• Création des tem plates pour la carte, le bulletin, la lettre et l'em ploi du tem ps.
+• Création des endpoints de téléchargem ent.
+Phase 6 : Intégration Finale et Tests (Sem aine 7)
+• Connexion des boutons de téléchargem ent React aux APIs de génération PDF.
+• Tests com plets (vériﬁcation des calculs de m oyenne, alignem ent dans les PDF).
+• Correction des bugs.
+VII. Sécurité et Bonnes Pratiques
+1.Validation des données : Toujours valider les données côté frontend (React) ET côté 
+backend (J ava avec @ Valid ).
+2.Sécurité des PDF : S'assurer qu'un étudiant ne peut télécharger que son propre 
+bulletin (vériﬁcation de l'ID de l'utilisateur connecté par rapport à l'ID dem andé).
+3.G estion des erreurs : M ettre en place un @ ControllerAdvice  dans Spring Boot pour 
+renvoyer des m essages d'erreur J SON propres au frontend.
+4.Sauvegarde : Penser à faire des exports réguliers de la base de données M ySQL.
